@@ -8,20 +8,63 @@ app.use(express.static('public'));  // busca el css y los assests en public
 
 app.get(['/'],function(req,res){   // busca index en view (pug)
 	res.render('index', {
-		title: 'Animal'
+		title: 'Casting La Araucana'
 	});
 })
 
 app.get(['/curso'],function(req,res){   // busca index en view (pug)
 	res.render('index', {
-		title: 'curso'
+		title: 'Casting'
+	});
+})
+
+app.get(['/porAprobar'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
+	});
+})
+app.get(['/rechazadas'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
+	});
+})
+app.get(['/aprobadas'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
+	});
+})
+
+app.get(['/participantes'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
+	});
+})
+app.get(['/seleccionadas'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
+	});
+})
+app.get(['/ganadores'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
+	});
+})
+
+app.get(['/home'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
 	});
 })
 
 
+app.get(['/*'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
+	});
+})
 
 
-*/// Iniciar el server
+// init server
 app.listen(8080,function(err){
 	if (err) return console.log('Hubo error'), process.exit(1);
 console.log('Escuchando en el Puerto 8080');

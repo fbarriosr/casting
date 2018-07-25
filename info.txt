@@ -1,0 +1,37 @@
+8 personajes 
+
+1 pensionado hombre,                       
+1 pensionado mujer, 					  
+
+1 trabajador hombre (45 años), 			   
+1 trabajador mujer (40 años), 			   
+
+1 trabajador hombre de (25 años), 		   
+1 trabajador mujer (25 años), 
+
+1 niño de (15 años), 
+
+1 niña de 15 años,
+1 niño de 10 
+1 niña 6. 
+
+Por lo que serán 8 categorías.
+
+
+Storage
+
+pensionado      hombre
+				mujer
+
+trabajador		hombre    45
+						  25
+
+				mujer	  40
+					      20
+
+kid				hombre	  15
+						  10
+
+				mujer	  15
+						  6
+				

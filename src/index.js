@@ -2,10 +2,15 @@ var page = require('page');
 
 require('./firebase');
 
-//require('./login');
+require('./login');
 
+require('./porAprobar');
+require('./rechazadas');
+require('./aprobadas');
+
+require('./participantes');
+require('./seleccionadas');
+require('./ganadores');
 require('./home');
-
-require('./curso');
-
+require('./404');
 page(); 

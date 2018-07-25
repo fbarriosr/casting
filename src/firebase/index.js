@@ -1,11 +1,11 @@
 // Initialize Firebase
 var config = {
-  apiKey: "AIzaSyAP7YCpyEuV3p-mJUGnKVMb17j_0TMkbEo",
-  authDomain: "e-learning-62f78.firebaseapp.com",
-  databaseURL: "https://e-learning-62f78.firebaseio.com",
-  projectId: "e-learning-62f78",
-  storageBucket: "e-learning-62f78.appspot.com",
-  messagingSenderId: "482827545650"
+  apiKey: "AIzaSyA7tIl_GDV9ab-XqpJ8VZPOckU3KOlDYeQ",
+  authDomain: "casting-679ad.firebaseapp.com",
+  databaseURL: "https://casting-679ad.firebaseio.com",
+  projectId: "casting-679ad",
+  storageBucket: "casting-679ad.appspot.com",
+  messagingSenderId: "90191088480"
 };
 
 firebase.initializeApp(config);
