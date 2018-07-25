@@ -3337,7 +3337,7 @@ function rechazar(thisObj) {
   console.log("codigo:", key);
 }
 
-},{"../card/cardAprobadas":17,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":28,"../title/title":40,"empty-element":3,"page":11,"yo-yo":13}],17:[function(require,module,exports){
+},{"../card/cardAprobadas":17,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":30,"../title/title":42,"empty-element":3,"page":11,"yo-yo":13}],17:[function(require,module,exports){
 "use strict";
 
 var _templateObject = _taggedTemplateLiteral(["\n\t        <div class=\"col s6 m3 curso\" id=", ">\n              <div class=\"card hoverable\">\n                <div class=\"card-image \"> \n                  <a target=\"_blank\" href=", ">  \n                    <img style=\"min-height=300px;\" src=", ">\n                  </a>\n                  <a class=\"btn-floating halfway-fab waves-effect waves-light red\" style=\"right: 5px;\">\n                    <i id=", " class=\"btnDelete material-icons\">clear</i>\n                  </a>\n                </div>\n                <div class=\"card-content\">\n                  <div class=\"divId\" >\n                    <p style=\"text-align:left; font-weight:bolder;\">RUT</p>\n                    <p class=\"rut\" style=\"text-align:center\">", "</p>\n                    <p style=\"text-align:left; font-weight:bolder;\">C\xD3DIGO</p>\n                    <p class=\"key1\" style=\"text-align:center\">", "</p>\n                  </div>\n                </div>\n              </div>\n            </div>\n\t\t"], ["\n\t        <div class=\"col s6 m3 curso\" id=", ">\n              <div class=\"card hoverable\">\n                <div class=\"card-image \"> \n                  <a target=\"_blank\" href=", ">  \n                    <img style=\"min-height=300px;\" src=", ">\n                  </a>\n                  <a class=\"btn-floating halfway-fab waves-effect waves-light red\" style=\"right: 5px;\">\n                    <i id=", " class=\"btnDelete material-icons\">clear</i>\n                  </a>\n                </div>\n                <div class=\"card-content\">\n                  <div class=\"divId\" >\n                    <p style=\"text-align:left; font-weight:bolder;\">RUT</p>\n                    <p class=\"rut\" style=\"text-align:center\">", "</p>\n                    <p style=\"text-align:left; font-weight:bolder;\">C\xD3DIGO</p>\n                    <p class=\"key1\" style=\"text-align:center\">", "</p>\n                  </div>\n                </div>\n              </div>\n            </div>\n\t\t"]);
@@ -3566,6 +3566,384 @@ var yo = require('yo-yo');
 module.exports = yo(_templateObject);
 
 },{"yo-yo":13}],27:[function(require,module,exports){
+'use strict';
+
+var page = require('page');
+
+var imagesFBRef = firebase.database().ref().child('registroConcursante/porAprobar');
+
+var imagenName = "";
+var downloadURL = "";
+var envio = false;
+var file = null;
+
+var edadAux = false;
+var categoriaTipo = null;
+
+page('/formulario', function (ctx, next) {
+  load();
+});
+
+function load(ctx, next) {
+  console.log('----------Home page--------');
+  loadHeader();
+  loadPage();
+
+  loadFooter();
+  paginaUno();
+  btnSexo();
+  $('select').material_select();
+  $('.dropdown-button').dropdown(); // dropdown abrir
+}
+
+function loadFooter() {
+  console.log('------------loadFooter() ------------');
+  var empty = require('empty-element');
+  var footer = document.getElementById('footer-container');
+  var footerTemplate = require('../footer/footer');
+  empty(footer).appendChild(footerTemplate);
+  console.log('************loadFooter() ************');
+}
+
+function loadHeader() {
+  console.log('------------loadHeader() ------------');
+  var empty = require('empty-element');
+  var headerTemplate = require('../header/headerLogin');
+  var header = document.getElementById('header-container');
+  empty(header).appendChild(headerTemplate());
+
+  var sliderTemplate = require('../slider/slider');
+  var slider = document.getElementById('slider-container');
+  empty(slider).appendChild(sliderTemplate('mobile.png', 'tablet.png', 'desktopHd.png'));
+
+  var titleTemplate = require('../title/title');
+  var title = document.getElementById('title-container');
+  empty(title).appendChild(titleTemplate('Ingresa tus Datos', 'Casting La Araucana'));
+
+  console.log('************loadHeader() ************');
+}
+
+function loadPage() {
+  console.log('------------loadPage() ------------');
+  var aux = require('./template');
+  var main = document.getElementById('main-container');
+  var empty = require('empty-element');
+  empty(main).appendChild(aux);
+
+  console.log('************loadPage() ************');
+}
+
+function paginaUno() {
+
+  var uploader = document.getElementById('uploader');
+  var fileButton = document.getElementById('exampleFileUpload');
+
+  // Listen for file selection
+
+  fileButton.addEventListener('change', function (e) {
+
+    // get file
+
+    file = e.target.files[0];
+
+    var nameRand = Math.floor(Math.random() * 100000000 + 1);
+
+    imagenName = nameRand + '_' + file.name;
+    console.log('file', file);
+    console.log('image', imagenName);
+  });
+
+  $('#fieldGood').find('#close-modal').click(function (event) {
+    event.preventDefault();
+    location.reload();
+    console.log('hola');
+  });
+
+  $('#btnSend').click(function () {
+
+    var name = $('#name').val();
+    var lastName = $('#lastName').val();
+    var rut = $('#rut').val();
+    var email = $('#email').val();
+    var phone = $('#phone').val();
+
+    var id = Math.floor(Math.random() * 100000000 + 1);
+
+    if (file == null) {
+      $('#fotoNone').modal('open');
+    } else if (file != null) {
+
+      console.log("DATA ");
+      console.log("name: ", name);
+      console.log("lastName: ", lastName);
+      console.log("rut: ", rut);
+      console.log("email: ", email);
+      console.log("phone: ", phone);
+      categoriaTipo = getCategoria();
+
+      if (name == "" || lastName == "" || rut == "" || email == "" || phone == "" || categoriaTipo == null) {
+        console.log("vacio ");
+        // alert("Debes Completar los campos pedidos");
+        $('#fotoNone').modal('open');
+      } else {
+
+        var aux = $.rut.formatear(rut);
+        var es_valido = $.rut.validar(aux);
+        var es_mail = validateEmail(email);
+
+        if (es_valido && es_mail) {
+          //alert('rut  y email valido');
+
+          //console.log("rut  y email valido");
+
+          checkRutBaseDatos(name, lastName, rut, email, phone, imagenName, downloadURL, categoriaTipo);
+        } else if (es_valido && !es_mail) {
+          $('#fieldMailMalo').modal('open');
+        } else if (!es_valido && es_mail) {
+          $('#fieldRutMalo').modal('open');
+        } else if (!es_valido && !es_mail) {
+          $('#fieldRutMailMalo').modal('open');
+        }
+      }
+    }
+  });
+
+  $(document).on($.modal.CLOSE, function () {
+    console.log('cerrar modal');
+    if (envio) {
+      location.reload(true);
+    }
+  });
+
+  function checkRut(rut) {
+    // Despejar Puntos
+    var valor = rut.value.replace('.', '');
+    // Despejar Guión
+    valor = valor.replace('-', '');
+
+    // Aislar Cuerpo y Dígito Verificador
+    cuerpo = valor.slice(0, -1);
+    dv = valor.slice(-1).toUpperCase();
+
+    // Formatear RUN
+    rut.value = cuerpo + '-' + dv;
+
+    // Si no cumple con el mínimo ej. (n.nnn.nnn)
+    if (cuerpo.length < 7) {
+      rut.setCustomValidity("RUT Incompleto");return false;
+    }
+
+    // Calcular Dígito Verificador
+    suma = 0;
+    multiplo = 2;
+
+    // Para cada dígito del Cuerpo
+    for (i = 1; i <= cuerpo.length; i++) {
+
+      // Obtener su Producto con el Múltiplo Correspondiente
+      index = multiplo * valor.charAt(cuerpo.length - i);
+
+      // Sumar al Contador General
+      suma = suma + index;
+
+      // Consolidar Múltiplo dentro del rango [2,7]
+      if (multiplo < 7) {
+        multiplo = multiplo + 1;
+      } else {
+        multiplo = 2;
+      }
+    }
+
+    // Calcular Dígito Verificador en base al Módulo 11
+    dvEsperado = 11 - suma % 11;
+
+    // Casos Especiales (0 y K)
+    dv = dv == 'K' ? 10 : dv;
+    dv = dv == 0 ? 11 : dv;
+
+    // Validar que el Cuerpo coincide con su Dígito Verificador
+    if (dvEsperado != dv) {
+      rut.setCustomValidity("RUT Inválido");return false;
+    }
+
+    // Si todo sale bien, eliminar errores (decretar que es válido)
+    rut.setCustomValidity('');
+    return true;
+  }
+
+  function validateEmail($email) {
+    var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+    return emailReg.test($email);
+  }
+
+  function guardarInfoImagenes(name, lastName, rut, email, phone, imagenName, downloadURL, categoriaTipo) {
+    imagesFBRef.push({
+      name: name,
+      lastName: lastName,
+      rut: rut,
+      email: email,
+      phone: phone,
+      nameImagen: imagenName,
+      urlImagen: "null",
+      urlImagen_thumb: "null",
+      score: "0",
+      category: categoriaTipo
+    });
+
+    //. aqui kede hay k agregar subir imagen y luego ir a programar el servidor
+    var storageRef = firebase.storage().ref('fotos/' + categoriaTipo + '/' + imagenName);
+
+    // upload file
+
+    var task = storageRef.put(file);
+
+    task.on('state_changed', function progress(snapshot) {
+      var porcentaje = snapshot.bytesTransferred / snapshot.totalBytes * 100;
+      uploader.value = porcentaje;
+    }, function error(err) {}, function complete() {
+      envio = true;
+      console.log("envio:", envio);
+      $('#fieldGood').modal('open');
+    });
+  }
+  function checkRutBaseDatos(name, lastName, rut, email, phone, imagenName, downloadURL, categoriaTipo) {
+    rut = rut.replace('-', '');
+    var path = "registroConcursante/" + categoriaTipo + "/aprobada/participantes";
+    var aux = firebase.database().ref().child(path).orderByChild("rut").equalTo(rut);
+    var datos;
+    aux.once("value", function (snapshot) {
+      datos = snapshot.val();
+      if (datos != null) {
+        for (var key in datos) {
+          console.log('rut Exite name', datos[key].name);
+        }
+        $('#fieldRutMailDoble').modal('open');
+
+        return true;
+      } else {
+        console.log('rut no Exite ');
+        path = "registroConcursante/" + categoriaTipo + "/porAprobar";
+        imagesFBRef = firebase.database().ref().child(path);
+        guardarInfoImagenes(name, lastName, rut, email, phone, imagenName, downloadURL, categoriaTipo);
+        return false;
+      }
+    });
+    return true;
+  }
+}
+
+function cleanBoxEdad() {
+  $('#edad').find('option').remove().end().append('<option value="" disabled selected>Edad</option>').val('');
+  $('select').material_select();
+}
+
+function btnSexo() {
+  $('#sexo').on('change', function () {
+    var sexo = $("#sexo option:selected").text();
+    var cat = $("#cat option:selected").text();
+
+    console.log(cat);
+    console.log(sexo);
+
+    if (cat == "Pensionado" && (sexo == "Hombre" || sexo == "Mujer")) {
+      pensionadoHombreMujer();
+    } else if (cat == "Trabajador" && sexo == "Hombre") {
+      trabajadorHombre();
+    } else if (cat == "Trabajador" && sexo == "Mujer") {
+      trabajadorMujer();
+    } else if (cat == "Niños" && sexo == "Hombre") {
+      kidHombre();
+    } else if (cat == "Niños" && sexo == "Mujer") {
+      kidMujer();
+    }
+  });
+}
+
+function getCategoria() {
+  var sexo = $("#sexo option:selected").text();
+  var cat = $("#cat option:selected").text();
+  var edad = $("#edad option:selected").text();
+
+  if (cat == "Pensionado" && sexo == "Hombre") {
+    categoriaTipo = "pensionado/hombre";
+  } else if (cat == "Pensionado" && sexo == "Mujer") {
+    categoriaTipo = "pensionado/mujer";
+  } else if (cat == "Trabajador" && sexo == "Hombre" && edad == "45 Años") {
+    categoriaTipo = "trabajador/hombre/45";
+  } else if (cat == "Trabajador" && sexo == "Hombre" && edad == "25 Años") {
+    categoriaTipo = "trabajador/hombre/25";
+  } else if (cat == "Trabajador" && sexo == "Mujer" && edad == "40 Años") {
+    categoriaTipo = "trabajador/mujer/40";
+  } else if (cat == "Trabajador" && sexo == "Mujer" && edad == "20 Años") {
+    categoriaTipo = "trabajador/mujer/20";
+  } else if (cat == "Niños" && sexo == "Hombre" && edad == "15 Años") {
+    categoriaTipo = "kid/hombre/15";
+  } else if (cat == "Niños" && sexo == "Hombre" && edad == "10 Años") {
+    categoriaTipo = "kid/hombre/10";
+  } else if (cat == "Niños" && sexo == "Mujer" && edad == "15 Años") {
+    categoriaTipo = "kid/mujer/15";
+  } else if (cat == "Niños" && sexo == "Mujer" && edad == "6 Años") {
+    categoriaTipo = "kid/mujer/6";
+  }
+  console.log(categoriaTipo);
+  return categoriaTipo;
+}
+
+function pensionadoHombreMujer() {
+  $('#edadParent').hide();
+  edadAux = true;
+}
+
+function trabajadorHombre() {
+
+  if (edadAux) {
+    $('#edadParent').show();
+  }
+
+  $('#edad').find('option').remove().end().append('<option value="" disabled selected>Edad</option>').val('').append('<option value="1" selected>25 Años</option>').val('').append('<option value="2" selected>45 Años</option>').val('');
+  $('select').material_select();
+}
+function trabajadorMujer() {
+
+  if (edadAux) {
+    $('#edadParent').show();
+  }
+  $('#edad').find('option').remove().end().append('<option value="" disabled selected>Edad</option>').val('').append('<option value="1" selected>20 Años</option>').val('').append('<option value="2" selected>40 Años</option>').val('');
+  $('select').material_select();
+}
+
+function kidMujer() {
+
+  if (edadAux) {
+    $('#edadParent').show();
+  }
+
+  $('#edad').find('option').remove().end().append('<option value="" disabled selected>Edad</option>').val('').append('<option value="1" selected>6 Años</option>').val('').append('<option value="2" selected>15 Años</option>').val('');
+  $('select').material_select();
+}
+function kidHombre() {
+
+  if (edadAux) {
+    $('#edadParent').show();
+  }
+  $('#edad').find('option').remove().end().append('<option value="" disabled selected>Edad</option>').val('').append('<option value="1" selected>10 Años</option>').val('').append('<option value="2" selected>15 Años</option>').val('');
+  $('select').material_select();
+}
+
+},{"../footer/footer":26,"../header/headerLogin":32,"../slider/slider":41,"../title/title":42,"./template":28,"empty-element":3,"page":11}],28:[function(require,module,exports){
+'use strict';
+
+var _templateObject = _taggedTemplateLiteral(['\n<div class="container" >\n \n          <div class="row" id="addPhoto" >\n  \n              <div class="row">\n              <form class="col s12">\n                <div class="input-field col s12">\n                    <i class="material-icons prefix">account_circle</i>\n                    <input id="name" type="text" class="validate">\n                    <label for="name">Nombres</label>\n                </div>\n                <div class="input-field col s12">\n                    <i class="material-icons prefix">account_circle</i>\n                    <input id="lastName" type="text" class="validate">\n                    <label for="lastName">Apellidos</label>\n                </div>\n                <div class="input-field col s12">\n                    <i class="material-icons prefix">folder_shared</i>\n                    <input id="rut" type="text" class="validate">\n                    <label for="rut">Rut</label>\n                </div>  \n                <div class="input-field col s12">\n                    <i class="material-icons prefix">mail</i>\n                    <input id="email" type="email" class="validate">\n                    <label for="email">E-mail</label>\n                </div>\n                <div class="input-field col s12">\n                    <i class="material-icons prefix">phone</i>\n                    <input id="phone" type="tel" class="validate">\n                    <label for="phone">Telephone</label>\n                </div>\n\n                <div class="input-field col s4">\n                  <select id="cat">\n                    <option value="" disabled selected>Categor\xEDa</option>\n                    <option value="1">Pensionado</option>\n                    <option value="2">Trabajador</option>\n                    <option value="3">Ni\xF1os</option>\n                  </select>\n                </div>\n                <div class="input-field col s4">\n                  <select id="sexo">\n                    <option value="" disabled selected>Sexo</option>\n                    <option value="1">Hombre</option>\n                    <option value="2">Mujer</option>\n                  </select>\n                </div>\n                <div class="input-field col s4" id="edadParent">\n                  <select id="edad">\n                    <option value="" disabled selected>Edad</option>\n                    <option value="1">10 a\xF1os</option>\n                    <option value="2">12 a\xF1os</option>\n                  </select>\n                </div>\n\n              </form> \n              <div id="fieldNone" class="modal">\n                  <p style="text-align: center;">Estimado Debes Ingresar Todos los Campos.</p>\n              </div>\n              <div id="fotoNone" class="modal">\n                  <p style="text-align: center;">Estimado Debes Adjuntar una Foto.</p>\n              </div>\n              <div id="fieldGood" class="modal">\n                  <p style="font-weight: bolder; text-align: center;">Gracias por Participar. <br></p>\n                  <p style="font-weight: bolder; text-align: center;">Tu foto ser\xE1 revisada antes de publicarse. <br></p>\n                  <p style="font-weight: bolder; text-align: center;">Mira las Fotos que est\xE1n participan en el Sitio</p>\n              </div>\n              <div id="fieldRutMalo" class="modal">\n                  <p >Ingrese un rut v\xE1lido</p>\n              </div>\n\n              <div id="fieldMailMalo" class="modal">\n                  <p >Ingrese un mail v\xE1lido.</p>\n              </div>\n              <div id="fieldRutMailMalo" class="modal">\n                  <p >Ingrese un rut y un mail v\xE1lidos</p>\n              </div> \n              <div id="fieldRutMailDoble" class="modal">\n                  <p >Solo puedes participar una vez. :)</p>\n              </div>\n\n            <div class="col s12 center-align">\n\n            <div id="columnsInfo" class="col s12  text-center center-align"  style="height: auto; width: 100% ">  \n                <label id="buttonFotosInside" for="exampleFileUpload" class="btn hoverable" style="height: auto; width: 100% ">SUBIR FOTO</label>\n                <input type="file" id="exampleFileUpload" class="hide">\n            </div> \n          \n            <div id="butonCol" class="col s12  text-center center-align" style="margin-bottom: 20px; " >  \n                  <label id="btnSend"  class="btn hoverable" style="width: 120px; font-size:22px; background:#EE9319; font-family: \'Open Sans\', sans-serif;color: white">Participar</label>\n            </div>\n\n            <div id="columnsInfo" class="col s12  text-center center-align"  style="height: auto; width: 100% ">  \n                <progress value="0" max="100" id="uploader">0% </progress>\n            </div>\n\n            <div class="row">\n                <div class="col s12 m4" style=" text-align: center;">\n                    <img src="logoBienestar.png" style="max-width: 200px; min-width: 150px">\n                </div>\n\n                <div class="col s12 m4"  style=" text-align: center;">\n                    <a >\n                    <h6 style="color: #EE9319; padding: 40px;font-family: \'Lato\', sans-serif;font-weight:700; text-transform: uppercase;"><span style="font-weight:400"></span> Bases del Concurso </h6>\n                  </a>\n                </div>\n                <div class="col s12 m4 "  style=" text-align: center; ">\n                    <img src="logoCorbela.png" style="max-width: 200px; min-width: 150px">\n                </div>\n            </div>\n\n\n\n\n          </div>\n      \n    </div> \n</div>\n\n'], ['\n<div class="container" >\n \n          <div class="row" id="addPhoto" >\n  \n              <div class="row">\n              <form class="col s12">\n                <div class="input-field col s12">\n                    <i class="material-icons prefix">account_circle</i>\n                    <input id="name" type="text" class="validate">\n                    <label for="name">Nombres</label>\n                </div>\n                <div class="input-field col s12">\n                    <i class="material-icons prefix">account_circle</i>\n                    <input id="lastName" type="text" class="validate">\n                    <label for="lastName">Apellidos</label>\n                </div>\n                <div class="input-field col s12">\n                    <i class="material-icons prefix">folder_shared</i>\n                    <input id="rut" type="text" class="validate">\n                    <label for="rut">Rut</label>\n                </div>  \n                <div class="input-field col s12">\n                    <i class="material-icons prefix">mail</i>\n                    <input id="email" type="email" class="validate">\n                    <label for="email">E-mail</label>\n                </div>\n                <div class="input-field col s12">\n                    <i class="material-icons prefix">phone</i>\n                    <input id="phone" type="tel" class="validate">\n                    <label for="phone">Telephone</label>\n                </div>\n\n                <div class="input-field col s4">\n                  <select id="cat">\n                    <option value="" disabled selected>Categor\xEDa</option>\n                    <option value="1">Pensionado</option>\n                    <option value="2">Trabajador</option>\n                    <option value="3">Ni\xF1os</option>\n                  </select>\n                </div>\n                <div class="input-field col s4">\n                  <select id="sexo">\n                    <option value="" disabled selected>Sexo</option>\n                    <option value="1">Hombre</option>\n                    <option value="2">Mujer</option>\n                  </select>\n                </div>\n                <div class="input-field col s4" id="edadParent">\n                  <select id="edad">\n                    <option value="" disabled selected>Edad</option>\n                    <option value="1">10 a\xF1os</option>\n                    <option value="2">12 a\xF1os</option>\n                  </select>\n                </div>\n\n              </form> \n              <div id="fieldNone" class="modal">\n                  <p style="text-align: center;">Estimado Debes Ingresar Todos los Campos.</p>\n              </div>\n              <div id="fotoNone" class="modal">\n                  <p style="text-align: center;">Estimado Debes Adjuntar una Foto.</p>\n              </div>\n              <div id="fieldGood" class="modal">\n                  <p style="font-weight: bolder; text-align: center;">Gracias por Participar. <br></p>\n                  <p style="font-weight: bolder; text-align: center;">Tu foto ser\xE1 revisada antes de publicarse. <br></p>\n                  <p style="font-weight: bolder; text-align: center;">Mira las Fotos que est\xE1n participan en el Sitio</p>\n              </div>\n              <div id="fieldRutMalo" class="modal">\n                  <p >Ingrese un rut v\xE1lido</p>\n              </div>\n\n              <div id="fieldMailMalo" class="modal">\n                  <p >Ingrese un mail v\xE1lido.</p>\n              </div>\n              <div id="fieldRutMailMalo" class="modal">\n                  <p >Ingrese un rut y un mail v\xE1lidos</p>\n              </div> \n              <div id="fieldRutMailDoble" class="modal">\n                  <p >Solo puedes participar una vez. :)</p>\n              </div>\n\n            <div class="col s12 center-align">\n\n            <div id="columnsInfo" class="col s12  text-center center-align"  style="height: auto; width: 100% ">  \n                <label id="buttonFotosInside" for="exampleFileUpload" class="btn hoverable" style="height: auto; width: 100% ">SUBIR FOTO</label>\n                <input type="file" id="exampleFileUpload" class="hide">\n            </div> \n          \n            <div id="butonCol" class="col s12  text-center center-align" style="margin-bottom: 20px; " >  \n                  <label id="btnSend"  class="btn hoverable" style="width: 120px; font-size:22px; background:#EE9319; font-family: \'Open Sans\', sans-serif;color: white">Participar</label>\n            </div>\n\n            <div id="columnsInfo" class="col s12  text-center center-align"  style="height: auto; width: 100% ">  \n                <progress value="0" max="100" id="uploader">0% </progress>\n            </div>\n\n            <div class="row">\n                <div class="col s12 m4" style=" text-align: center;">\n                    <img src="logoBienestar.png" style="max-width: 200px; min-width: 150px">\n                </div>\n\n                <div class="col s12 m4"  style=" text-align: center;">\n                    <a >\n                    <h6 style="color: #EE9319; padding: 40px;font-family: \'Lato\', sans-serif;font-weight:700; text-transform: uppercase;"><span style="font-weight:400"></span> Bases del Concurso </h6>\n                  </a>\n                </div>\n                <div class="col s12 m4 "  style=" text-align: center; ">\n                    <img src="logoCorbela.png" style="max-width: 200px; min-width: 150px">\n                </div>\n            </div>\n\n\n\n\n          </div>\n      \n    </div> \n</div>\n\n']);
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var yo = require('yo-yo');
+
+var login = yo(_templateObject);
+
+module.exports = login;
+
+},{"yo-yo":13}],29:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  '], ['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  ']);
@@ -4435,7 +4813,7 @@ function rechazar(thisObj) {
   $(idCard).remove();
 }
 
-},{"../card/cardGanadores":19,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":28,"../title/title":40,"empty-element":3,"page":11,"yo-yo":13}],28:[function(require,module,exports){
+},{"../card/cardGanadores":19,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":30,"../title/title":42,"empty-element":3,"page":11,"yo-yo":13}],30:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n\n    <div class="">\n\t   \t<nav class="navbar-fixed">\n\t   \t\t<div  class="header row hide-on-large-only">\n\t\t        <a href="#" data-activates="slide-out" class="button-collapse right"><i class="material-icons">menu</i></a>\n\t\t\t    <a  href="/home" class="brand-logo left">\n\t\t\t        <img src="logo.svg" width="200px" height="auto" style="padding-left: 20px;">\n\t\t\t    </a>  \n\t      \t</div>\n\t\t    <div class="header nav-wrapper hide-on-med-and-down">   \n\t\t\t  <a  href="/home" class="brand-logo left">\n\t\t        <img src="logo.svg" width="200px" height="auto" style="padding-left: 20px;">\n\t\t      </a>\n\t\t      <div class="hide-on-med-and-down">\n\t\t\t      <ul id="dropdown1" class="dropdown-content">\n\t\t\t        <li><a id="btnPensionadosHombre">Pensionados Hombre</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnPensionadosMujer">Pensionados Mujer</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnTrabajadorHombre45">Trabajador Hombre 45 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnTrabajadorHombre25">Trabajador Hombre 25 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnTrabajadorMujer40">Trabajador Mujer 40 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnTrabajadorMujer20">Trabajador Mujer 20 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnKidHombre15">Ni\xF1o 15 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnKidHombre10">Ni\xF1o 10 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnKidMujer15">Ni\xF1a 15 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnKidMujer6">Ni\xF1a 6 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t      </ul>\n\t\t\t      <ul id="dropdown2" class="dropdown-content ">\n\t\t\t        <li><a id="btnporAprobar"><i class="material-icons" style="color: blue">thumbs_up_down</i>Por Aprobar</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnAprobar"><i class="material-icons" style="color: green">thumb_up</i>Aprobar</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnRechazar"><i class="material-icons" style="color: red">thumb_down</i>Rechazadas</a></li>\n\t\t\t      </ul>\n\t\t\t      <!-- Dropdown Structure -->\n\t\t\t      <ul id="dropdown3" class="dropdown-content">\n\t\t\t        <li><a id="btnParticipantes"><i class="material-icons" style="color: orange">people</i>Participantes</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnSeleccionadas"><i class="material-icons" style="color: orange">favorite</i>Seleccionadas</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnGanadores"><i class="material-icons" style="color: orange">star</i>Ganadores</a></li>\n\t\t\t      </ul>\n\t\t\t      <ul id="nav-mobile" class="right hide-on-med-and-down">\n\t\t\t        <li><a class="dropdown-button" data-activates="dropdown1">Categor\xEDas<i class="material-icons right">arrow_drop_down</i></a></li>\n\t\t\t        <li><a class="dropdown-button" data-activates="dropdown2">Selecci\xF3n<i class="material-icons right">arrow_drop_down</i></a></li>\n\t\t\t        <li><a class="dropdown-button" data-activates="dropdown3">Buscar Ganador<i class="material-icons right">arrow_drop_down</i></a></li>\n\t\t\t      \t<li><a class="dropdown-button " id="logOut" ><i class="material-icons">exit_to_app</i></a></li>\n\t\t\t      </ul>\n\t\t\t  </div>\n\t\t    </div>\t    \n\t  \t</nav>\n\n\t  \t  <ul id="slide-out" class="side-nav">  \n\t\t      <li>\n\t\t        <div class="userView">  \n\t\t          <img src="trabajadorHombre25.jpg" style="width:100% !important" >\n\t\t        </div>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a  id="itemMenuCategorias" class="menuLateral"><i class="material-icons" style="color:  yellow">dashboard</i>CATEGORIAS</a>\n\t\t      </li>\n\n\t\t      <li>\n\t\t        <a id="itemMenuPorAprobar" class="menuLateralLittle"><i class="material-icons" style="color: blue">thumbs_up_down</i>Por Aprobar</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuAprobar" class="menuLateralLittle"><i class="material-icons" style="color: green">thumb_up</i>Aprobar</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuRechazadas" class="menuLateralLittle"><i class="material-icons" style="color: red">thumb_down</i>Rechazadas</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuParticipantes" class="menuLateralLittle"><i class="material-icons" style="color: orange">people</i>Participantes</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuSeleccionadas" class="menuLateralLittle"><i class="material-icons" style="color: orange">favorite</i>Seleccionadas</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuGanadores" class="menuLateralLittle"><i class="material-icons" style="color: orange">star</i>Ganadores</a>\n\t\t      </li>  \n\t\t      <li>\n\t\t      \t<a id="itemMenulogOut" style="color:white; height: auto !important; line-height: 48px;font-weight:bolder" ><i class="material-icons">power_settings_new</i>SALIR</a>\n\t\t      </li>  \n\t\t    </ul>  \n\t  </div>\t\n    '], ['\n\n    <div class="">\n\t   \t<nav class="navbar-fixed">\n\t   \t\t<div  class="header row hide-on-large-only">\n\t\t        <a href="#" data-activates="slide-out" class="button-collapse right"><i class="material-icons">menu</i></a>\n\t\t\t    <a  href="/home" class="brand-logo left">\n\t\t\t        <img src="logo.svg" width="200px" height="auto" style="padding-left: 20px;">\n\t\t\t    </a>  \n\t      \t</div>\n\t\t    <div class="header nav-wrapper hide-on-med-and-down">   \n\t\t\t  <a  href="/home" class="brand-logo left">\n\t\t        <img src="logo.svg" width="200px" height="auto" style="padding-left: 20px;">\n\t\t      </a>\n\t\t      <div class="hide-on-med-and-down">\n\t\t\t      <ul id="dropdown1" class="dropdown-content">\n\t\t\t        <li><a id="btnPensionadosHombre">Pensionados Hombre</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnPensionadosMujer">Pensionados Mujer</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnTrabajadorHombre45">Trabajador Hombre 45 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnTrabajadorHombre25">Trabajador Hombre 25 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnTrabajadorMujer40">Trabajador Mujer 40 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnTrabajadorMujer20">Trabajador Mujer 20 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnKidHombre15">Ni\xF1o 15 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnKidHombre10">Ni\xF1o 10 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnKidMujer15">Ni\xF1a 15 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnKidMujer6">Ni\xF1a 6 a\xF1os</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t      </ul>\n\t\t\t      <ul id="dropdown2" class="dropdown-content ">\n\t\t\t        <li><a id="btnporAprobar"><i class="material-icons" style="color: blue">thumbs_up_down</i>Por Aprobar</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnAprobar"><i class="material-icons" style="color: green">thumb_up</i>Aprobar</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnRechazar"><i class="material-icons" style="color: red">thumb_down</i>Rechazadas</a></li>\n\t\t\t      </ul>\n\t\t\t      <!-- Dropdown Structure -->\n\t\t\t      <ul id="dropdown3" class="dropdown-content">\n\t\t\t        <li><a id="btnParticipantes"><i class="material-icons" style="color: orange">people</i>Participantes</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnSeleccionadas"><i class="material-icons" style="color: orange">favorite</i>Seleccionadas</a></li>\n\t\t\t        <li class="divider"></li>\n\t\t\t        <li><a id="btnGanadores"><i class="material-icons" style="color: orange">star</i>Ganadores</a></li>\n\t\t\t      </ul>\n\t\t\t      <ul id="nav-mobile" class="right hide-on-med-and-down">\n\t\t\t        <li><a class="dropdown-button" data-activates="dropdown1">Categor\xEDas<i class="material-icons right">arrow_drop_down</i></a></li>\n\t\t\t        <li><a class="dropdown-button" data-activates="dropdown2">Selecci\xF3n<i class="material-icons right">arrow_drop_down</i></a></li>\n\t\t\t        <li><a class="dropdown-button" data-activates="dropdown3">Buscar Ganador<i class="material-icons right">arrow_drop_down</i></a></li>\n\t\t\t      \t<li><a class="dropdown-button " id="logOut" ><i class="material-icons">exit_to_app</i></a></li>\n\t\t\t      </ul>\n\t\t\t  </div>\n\t\t    </div>\t    \n\t  \t</nav>\n\n\t  \t  <ul id="slide-out" class="side-nav">  \n\t\t      <li>\n\t\t        <div class="userView">  \n\t\t          <img src="trabajadorHombre25.jpg" style="width:100% !important" >\n\t\t        </div>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a  id="itemMenuCategorias" class="menuLateral"><i class="material-icons" style="color:  yellow">dashboard</i>CATEGORIAS</a>\n\t\t      </li>\n\n\t\t      <li>\n\t\t        <a id="itemMenuPorAprobar" class="menuLateralLittle"><i class="material-icons" style="color: blue">thumbs_up_down</i>Por Aprobar</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuAprobar" class="menuLateralLittle"><i class="material-icons" style="color: green">thumb_up</i>Aprobar</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuRechazadas" class="menuLateralLittle"><i class="material-icons" style="color: red">thumb_down</i>Rechazadas</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuParticipantes" class="menuLateralLittle"><i class="material-icons" style="color: orange">people</i>Participantes</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuSeleccionadas" class="menuLateralLittle"><i class="material-icons" style="color: orange">favorite</i>Seleccionadas</a>\n\t\t      </li>\n\t\t      <li>\n\t\t        <a id="itemMenuGanadores" class="menuLateralLittle"><i class="material-icons" style="color: orange">star</i>Ganadores</a>\n\t\t      </li>  \n\t\t      <li>\n\t\t      \t<a id="itemMenulogOut" style="color:white; height: auto !important; line-height: 48px;font-weight:bolder" ><i class="material-icons">power_settings_new</i>SALIR</a>\n\t\t      </li>  \n\t\t    </ul>  \n\t  </div>\t\n    ']);
@@ -4448,7 +4826,7 @@ module.exports = function header() {
 	return yo(_templateObject);
 };
 
-},{"yo-yo":13}],29:[function(require,module,exports){
+},{"yo-yo":13}],31:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n\t  <div class="navbar-fixed">\n\t   \t<nav>\n\t\t    <div class="header nav-wrapper ">    \n\t\t\t\t<a  href="/home" class="brand-logo left">\n\t\t        \t<img src="logo.svg" width="200px" height="auto" style="padding-left: 20px;">\n\t\t     \t</a>\n\n\t\t      <ul id="nav-mobile" class="right ">\n\t\t       <li><a class="dropdown-button " id="logOut" ><i class="material-icons">exit_to_app</i></a></li>\n\t\t      </ul>\n\t\t    </div>\t    \n\t  \t</nav>\n\t  </div>\t\n    '], ['\n\t  <div class="navbar-fixed">\n\t   \t<nav>\n\t\t    <div class="header nav-wrapper ">    \n\t\t\t\t<a  href="/home" class="brand-logo left">\n\t\t        \t<img src="logo.svg" width="200px" height="auto" style="padding-left: 20px;">\n\t\t     \t</a>\n\n\t\t      <ul id="nav-mobile" class="right ">\n\t\t       <li><a class="dropdown-button " id="logOut" ><i class="material-icons">exit_to_app</i></a></li>\n\t\t      </ul>\n\t\t    </div>\t    \n\t  \t</nav>\n\t  </div>\t\n    ']);
@@ -4461,7 +4839,7 @@ module.exports = function header() {
 	return yo(_templateObject);
 };
 
-},{"yo-yo":13}],30:[function(require,module,exports){
+},{"yo-yo":13}],32:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n\t  <div class="navbar-fixed">\n\t   \t<nav>\n\t\t    <div class="header nav-wrapper ">    \n\t\t\t\t<a  href="/home" class="brand-logo left">\n\t\t        \t<img src="logo.svg" width="200px" height="auto" style="padding-left: 20px;">\n\t\t     \t</a>\n\t\t    </div>\t    \n\t  \t</nav>\n\t  </div>\t\n    '], ['\n\t  <div class="navbar-fixed">\n\t   \t<nav>\n\t\t    <div class="header nav-wrapper ">    \n\t\t\t\t<a  href="/home" class="brand-logo left">\n\t\t        \t<img src="logo.svg" width="200px" height="auto" style="padding-left: 20px;">\n\t\t     \t</a>\n\t\t    </div>\t    \n\t  \t</nav>\n\t  </div>\t\n    ']);
@@ -4474,7 +4852,7 @@ module.exports = function header() {
 	return yo(_templateObject);
 };
 
-},{"yo-yo":13}],31:[function(require,module,exports){
+},{"yo-yo":13}],33:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  '], ['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  ']);
@@ -4633,7 +5011,7 @@ function getDocHeight() {
   return Math.max(D.body.scrollHeight, D.documentElement.scrollHeight, D.body.offsetHeight, D.documentElement.offsetHeight, D.body.clientHeight, D.documentElement.clientHeight);
 }
 
-},{"../card/cardCategory":18,"../footer/footer":26,"../header/headerHome":29,"../title/title":40,"empty-element":3,"page":11,"yo-yo":13}],32:[function(require,module,exports){
+},{"../card/cardCategory":18,"../footer/footer":26,"../header/headerHome":31,"../title/title":42,"empty-element":3,"page":11,"yo-yo":13}],34:[function(require,module,exports){
 'use strict';
 
 var page = require('page');
@@ -4645,15 +5023,16 @@ require('./login');
 require('./porAprobar');
 require('./rechazadas');
 require('./aprobadas');
-
+require('./formulario');
 require('./participantes');
 require('./seleccionadas');
 require('./ganadores');
 require('./home');
 require('./404');
+
 page();
 
-},{"./404":15,"./aprobadas":16,"./firebase":25,"./ganadores":27,"./home":31,"./login":33,"./participantes":35,"./porAprobar":36,"./rechazadas":37,"./seleccionadas":38,"page":11}],33:[function(require,module,exports){
+},{"./404":15,"./aprobadas":16,"./firebase":25,"./formulario":27,"./ganadores":29,"./home":33,"./login":35,"./participantes":37,"./porAprobar":38,"./rechazadas":39,"./seleccionadas":40,"page":11}],35:[function(require,module,exports){
 'use strict';
 
 var page = require('page');
@@ -4724,7 +5103,7 @@ function load() {
 	console.log("login page");
 }
 
-},{"../footer/footer":26,"../header/headerLogin":30,"../title/title":40,"./templateEmpty":34,"empty-element":3,"page":11,"yo-yo":13}],34:[function(require,module,exports){
+},{"../footer/footer":26,"../header/headerLogin":32,"../title/title":42,"./templateEmpty":36,"empty-element":3,"page":11,"yo-yo":13}],36:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n\n<div class="valign-wrapper" id="loginBody">\n  <div class="row">\n    \n      <form class="col s12 ">\n        <div class="row center-align">\n          <img src="mobile.png" width="100%" height="auto">\n        </div>\n        <div class="row">\n          <div class="input-field col s12">\n            <input id="txtEmail" type="text" class="validate" autocomplete="off">\n            <label for="txtEmail">Email</label>\n          </div>\n        </div>\n        <div class="row">\n          <div class="input-field col s12">\n            <input id="txtPassword" type="password" class="validate" autocomplete="off">\n            <label for="txtPassword">Password</label>\n          </div>\n        </div>\n        <div class="row">\n            <a id="btnLogin" class="waves-effect waves-light btn">Entrar</a>\n        </div>\n      </form>\n  </div>\n</div>  \n\n'], ['\n\n<div class="valign-wrapper" id="loginBody">\n  <div class="row">\n    \n      <form class="col s12 ">\n        <div class="row center-align">\n          <img src="mobile.png" width="100%" height="auto">\n        </div>\n        <div class="row">\n          <div class="input-field col s12">\n            <input id="txtEmail" type="text" class="validate" autocomplete="off">\n            <label for="txtEmail">Email</label>\n          </div>\n        </div>\n        <div class="row">\n          <div class="input-field col s12">\n            <input id="txtPassword" type="password" class="validate" autocomplete="off">\n            <label for="txtPassword">Password</label>\n          </div>\n        </div>\n        <div class="row">\n            <a id="btnLogin" class="waves-effect waves-light btn">Entrar</a>\n        </div>\n      </form>\n  </div>\n</div>  \n\n']);
@@ -4737,7 +5116,7 @@ var login = yo(_templateObject);
 
 module.exports = login;
 
-},{"yo-yo":13}],35:[function(require,module,exports){
+},{"yo-yo":13}],37:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  '], ['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  ']);
@@ -5326,7 +5705,7 @@ function favorito(thisObj) {
   console.log("codigo:", key);
 }
 
-},{"../card/cardParticipantes":20,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":28,"../title/title":40,"empty-element":3,"page":11,"yo-yo":13}],36:[function(require,module,exports){
+},{"../card/cardParticipantes":20,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":30,"../title/title":42,"empty-element":3,"page":11,"yo-yo":13}],38:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  '], ['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  ']);
@@ -5959,7 +6338,7 @@ function rechazar(thisObj) {
   console.log("codigo:", key);
 }
 
-},{"../card/cardporAprobar":23,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":28,"../slider/slider":39,"../title/title":40,"empty-element":3,"page":11,"yo-yo":13}],37:[function(require,module,exports){
+},{"../card/cardporAprobar":23,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":30,"../slider/slider":41,"../title/title":42,"empty-element":3,"page":11,"yo-yo":13}],39:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  '], ['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  ']);
@@ -6533,7 +6912,7 @@ function rechazar(thisObj) {
   console.log("codigo:", key);
 }
 
-},{"../card/cardRechazadas":22,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":28,"../slider/slider":39,"../title/title":40,"empty-element":3,"page":11,"yo-yo":13}],38:[function(require,module,exports){
+},{"../card/cardRechazadas":22,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":30,"../slider/slider":41,"../title/title":42,"empty-element":3,"page":11,"yo-yo":13}],40:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  '], ['\n    <div class="container" >\n    <div class="row">\n          <div class="row" id="addPhoto" >\n        \n          </div>\n      </div> \n    </div>\n  ']);
@@ -7408,7 +7787,7 @@ function rechazar(thisObj) {
   }
 }
 
-},{"../card/cardPreseleccionado":21,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":28,"../title/title":40,"empty-element":3,"page":11,"yo-yo":13}],39:[function(require,module,exports){
+},{"../card/cardPreseleccionado":21,"../empty/templateEmpty":24,"../footer/footer":26,"../header/header":30,"../title/title":42,"empty-element":3,"page":11,"yo-yo":13}],41:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n\t  <div>\n\t  \t<img class="responsive-img hide-on-med-and-up" src=', ' style="height: 70%vh;" alt="Space">\n        <img class="responsive-img hide-on-med-and-down" src=', ' style="height: 70%vh;" alt="Space"> \n        <img class="responsive-img hide-on-small-only hide-on-large-only" src=', ' style="height: 70%vh;" alt="Space">   \n \t  </div>\n\t \n    '], ['\n\t  <div>\n\t  \t<img class="responsive-img hide-on-med-and-up" src=', ' style="height: 70%vh;" alt="Space">\n        <img class="responsive-img hide-on-med-and-down" src=', ' style="height: 70%vh;" alt="Space"> \n        <img class="responsive-img hide-on-small-only hide-on-large-only" src=', ' style="height: 70%vh;" alt="Space">   \n \t  </div>\n\t \n    ']);
@@ -7422,7 +7801,7 @@ module.exports = function slider(mobile, tablet, desktop) {
        return yo(_templateObject, mobile, desktop, tablet);
 };
 
-},{"yo-yo":13}],40:[function(require,module,exports){
+},{"yo-yo":13}],42:[function(require,module,exports){
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral(['\n\t  <div class="container">\n\t  \t<div class="row">\n\t\t\t<h2 >', '</h2>\n\t        <h4 >', '</h4>  \n \t  \t</div>\n \t  </div>\n\t \n    '], ['\n\t  <div class="container">\n\t  \t<div class="row">\n\t\t\t<h2 >', '</h2>\n\t        <h4 >', '</h4>  \n \t  \t</div>\n \t  </div>\n\t \n    ']);
@@ -7436,4 +7815,4 @@ module.exports = function title(t1, t2) {
 		return yo(_templateObject, t1, t2);
 };
 
-},{"yo-yo":13}]},{},[32]);
+},{"yo-yo":13}]},{},[34]);

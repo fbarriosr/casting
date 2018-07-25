@@ -25,6 +25,7 @@ gulp.task('styles', function() {
     .pipe(gulp.dest('public'));
 });
 
+
 // funcion para pasar de js babel y generar app.js en public
 function compile(watch){
   var bundle = watchify(browserify('./src/index.js'));

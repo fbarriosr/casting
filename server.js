@@ -57,6 +57,12 @@ app.get(['/home'],function(req,res){   // busca index en view (pug)
 })
 
 
+app.get(['/formulario'],function(req,res){   // busca index en view (pug)
+	res.render('index', {
+		title: 'Casting'
+	});
+})
+
 app.get(['/*'],function(req,res){   // busca index en view (pug)
 	res.render('index', {
 		title: 'Casting'
@@ -64,13 +70,13 @@ app.get(['/*'],function(req,res){   // busca index en view (pug)
 })
 
 
-// init server
+// // init server
 app.listen(80,function(err){
 	if (err) return console.log('Hubo error'), process.exit(1);
 console.log('Escuchando en el Puerto 8080');
 })
 
-// init server
+
 // app.listen(8080,function(err){
 // 	if (err) return console.log('Hubo error'), process.exit(1);
 // console.log('Escuchando en el Puerto 8080');
