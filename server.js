@@ -65,9 +65,14 @@ app.get(['/*'],function(req,res){   // busca index en view (pug)
 
 
 // init server
-app.listen(8080,function(err){
+app.listen(80,function(err){
 	if (err) return console.log('Hubo error'), process.exit(1);
 console.log('Escuchando en el Puerto 8080');
 })
 
+// init server
+// app.listen(8080,function(err){
+// 	if (err) return console.log('Hubo error'), process.exit(1);
+// console.log('Escuchando en el Puerto 8080');
+// })
 
