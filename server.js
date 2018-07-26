@@ -56,7 +56,6 @@ app.get(['/home'],function(req,res){   // busca index en view (pug)
 	});
 })
 
-
 app.get(['/formulario'],function(req,res){   // busca index en view (pug)
 	res.render('index', {
 		title: 'Casting'

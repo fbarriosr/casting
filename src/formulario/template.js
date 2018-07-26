@@ -8,27 +8,27 @@ var login = yo`
               <div class="row">
               <form class="col s12">
                 <div class="input-field col s12">
-                    <i class="material-icons prefix">account_circle</i>
+                    <i class="material-icons prefix iconFormulario">account_circle</i>
                     <input id="name" type="text" class="validate">
                     <label for="name">Nombres</label>
                 </div>
                 <div class="input-field col s12">
-                    <i class="material-icons prefix">account_circle</i>
+                    <i class="material-icons prefix iconFormulario">account_circle</i>
                     <input id="lastName" type="text" class="validate">
                     <label for="lastName">Apellidos</label>
                 </div>
                 <div class="input-field col s12">
-                    <i class="material-icons prefix">folder_shared</i>
+                    <i class="material-icons prefix iconFormulario">folder_shared</i>
                     <input id="rut" type="text" class="validate">
                     <label for="rut">Rut</label>
                 </div>  
                 <div class="input-field col s12">
-                    <i class="material-icons prefix">mail</i>
+                    <i class="material-icons prefix iconFormulario">mail</i>
                     <input id="email" type="email" class="validate">
                     <label for="email">E-mail</label>
                 </div>
                 <div class="input-field col s12">
-                    <i class="material-icons prefix">phone</i>
+                    <i class="material-icons prefix iconFormulario">phone</i>
                     <input id="phone" type="tel" class="validate">
                     <label for="phone">Telephone</label>
                 </div>
@@ -90,7 +90,7 @@ var login = yo`
             </div> 
           
             <div id="butonCol" class="col s12  text-center center-align" style="margin-bottom: 20px; " >  
-                  <label id="btnSend"  class="btn hoverable" style="width: 120px; font-size:22px; background:#EE9319; font-family: 'Open Sans', sans-serif;color: white">Participar</label>
+                  <label id="btnSend"  class="btn hoverable" style="width: 120px; font-size:22px; font-family: 'Open Sans', sans-serif;color: white">Participar</label>
             </div>
 
             <div id="columnsInfo" class="col s12  text-center center-align"  style="height: auto; width: 100% ">  
@@ -104,7 +104,7 @@ var login = yo`
 
                 <div class="col s12 m4"  style=" text-align: center;">
                     <a >
-                    <h6 style="color: #EE9319; padding: 40px;font-family: 'Lato', sans-serif;font-weight:700; text-transform: uppercase;"><span style="font-weight:400"></span> Bases del Concurso </h6>
+                    <h6 style="color:#315594; padding: 40px;font-family: 'Lato', sans-serif;font-weight:700; text-transform: uppercase;"><span style="font-weight:400"></span> Bases del Concurso </h6>
                   </a>
                 </div>
                 <div class="col s12 m4 "  style=" text-align: center; ">
